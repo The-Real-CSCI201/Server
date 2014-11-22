@@ -11,17 +11,16 @@ module.exports = {
         var gameId = req.params.id;
         var playerId = req.body.playerId;
 
-        console.log('looking up game id ' + gameId);
         Game.findOne({id: gameId}, function (err, game) {
             if (err) {
                 res.status(404);
-                return res.end();
+                return res.json({status: 'err', message: 'failed to find game with id "' + gameId + '"'});
             }
 
             Player.findOne({id: playerId}, function (err, player) {
                 if (err) {
                     res.status(404);
-                    return res.end();
+                    return res.json({status: 'err', message: 'failed to find player with id "' + playerId + '"'});
                 }
 
                 game.players.add(player);
