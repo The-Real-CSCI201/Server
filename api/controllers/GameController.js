@@ -7,7 +7,15 @@
 
 module.exports = {
 
-    register: function (req, res) {
+    /**
+     * Controller method to join a player to a game.
+     * Adds the player specified by request field 'playerId' to the game specified in the URL path.
+     * Players have to join games so that they can receive push notifications and they will be represented as part of
+     * the game's playerStates field
+     *
+     * URL: /game/join/{id}
+     */
+    join: function (req, res) {
         var gameId = req.params.id;
         var playerId = req.body.playerId;
 
