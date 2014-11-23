@@ -13,22 +13,35 @@ module.exports = {
      * Provide the client with a list of games
      */
     index: function (req, res) {
-        Game.find().populate('players').exec(function (err, games) {
-            async.map(games, function (game, callback) {
-                var gameFields = {
-                    id: game.id,
-                    name: game.name
-                };
-                async.map(game.players, function (player, callback) {
-                    callback(null, player.name);
-                }, function (err, players) {
-                    gameFields.players = players;
-                    callback(null, gameFields);
-                });
-            }, function (err, games) {
-                return res.json(games);
-            })
-        })
+        if (req.method == 'POST') {
+            Game.create(req.body, function (err, game) {
+                if (err) {
+                    res.status(500);
+                    return res.json({status: 'err', message: 'failed to create new game'});
+                }
+                return res.json(game);
+            });
+        } else if (req.method == 'GET') {
+            Game.find().populate('players').exec(function (err, games) {
+                async.map(games, function (game, callback) {
+                    var gameFields = {
+                        id: game.id,
+                        name: game.name
+                    };
+                    async.map(game.players, function (player, callback) {
+                        callback(null, player.name);
+                    }, function (err, players) {
+                        gameFields.players = players;
+                        callback(null, gameFields);
+                    });
+                }, function (err, games) {
+                    return res.json(games);
+                })
+            });
+        } else {
+            res.status(405);
+            return res.json({status: 'err', message: 'method not allowed'});
+        }
     },
 
     /**
