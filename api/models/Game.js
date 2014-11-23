@@ -18,6 +18,7 @@ module.exports = {
         },
 
         'playerStates': 'json',
+        'pastStates': 'json',
 
         'bullets': 'json'
 

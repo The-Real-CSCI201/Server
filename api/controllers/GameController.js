@@ -14,7 +14,8 @@ module.exports = {
         var gameData = {
             players: [],
             playerStates: {},
-            bullets: []
+            bullets: [],
+            pastStates: []
         };
         Game.create(gameData, function (err, game) {
             return res.json(game);
@@ -130,10 +131,20 @@ module.exports = {
             var allPlayersMoved = true;
             for (var player in game.playerStates) {
                 if (game.playerStates.hasOwnProperty(player)) {
-                    if (!player.moved) {
+                    if (!game.playerStates[player].moved) {
                         allPlayersMoved = false;
                     }
                 }
+            }
+            if (allPlayersMoved) {
+                //move this turn's state to pastStates
+                game.pastStates.unshift({
+                    bullets: game.bullets
+                });
+                game.bullets = [];
+                //TODO: push to all clients that everyone has moved
+                console.log('this turn is over');
+                //TODO: update player health here if a player was hit
             }
 
             game.save(function (err) {
