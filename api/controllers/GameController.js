@@ -10,11 +10,18 @@ var gcm = require('node-gcm');
 module.exports = {
 
     /**
-     * Provide the client with a list of games
+     * Provide the client with a list of games or create a game.
      */
     index: function (req, res) {
         if (req.method == 'POST') {
-            Game.create(req.body, function (err, game) {
+            var gameData = {
+                name: req.body.name,
+                players: [],
+                playerStates: {},
+                bullets: [],
+                pastStates: []
+            };
+            Game.create(gameData, function (err, game) {
                 if (err) {
                     res.status(500);
                     return res.json({status: 'err', message: 'failed to create new game'});
@@ -42,21 +49,6 @@ module.exports = {
             res.status(405);
             return res.json({status: 'err', message: 'method not allowed'});
         }
-    },
-
-    /**
-     * Create a new game.
-     */
-    create: function (req, res) {
-        var gameData = {
-            players: [],
-            playerStates: {},
-            bullets: [],
-            pastStates: []
-        };
-        Game.create(gameData, function (err, game) {
-            return res.json(game);
-        });
     },
 
     /**
