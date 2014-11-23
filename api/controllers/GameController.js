@@ -142,9 +142,17 @@ module.exports = {
                     bullets: game.bullets
                 });
                 game.bullets = [];
+
+                //reset move states so that a player is marked as having not moved in the next round
+                for (var player in game.playerStates) {
+                    if (game.playerStates.hasOwnProperty(player)) {
+                        game.playerStates[player].moved = false;
+                    }
+                }
+
+                //TODO: update player health here if a player was hit
                 //TODO: push to all clients that everyone has moved
                 console.log('this turn is over');
-                //TODO: update player health here if a player was hit
             }
 
             game.save(function (err) {
