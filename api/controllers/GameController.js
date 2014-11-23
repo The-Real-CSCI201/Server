@@ -8,6 +8,19 @@
 module.exports = {
 
     /**
+     * Create a new game.
+     */
+    create: function (req, res) {
+        var gameData = {
+            players: [],
+            playerStates: {}
+        };
+        Game.create(gameData, function (err, game) {
+            return res.json(game);
+        });
+    },
+
+    /**
      * Controller method to join a player to a game.
      * Adds the player specified by request field 'playerId' to the game specified in the URL path.
      * Players have to join games so that they can receive push notifications and they will be represented as part of
@@ -33,6 +46,14 @@ module.exports = {
 
                 game.players.add(player);
 
+                game.playerStates[player.id] = {
+                    location: {
+                        x: 0,
+                        y: 0
+                    },
+                    health: 10
+                };
+
                 game.save(function (err) {
                     if (err) {
                         res.status(500);
@@ -41,6 +62,56 @@ module.exports = {
 
                     return res.json(game);
                 });
+            });
+        });
+    },
+
+    /**
+     * Controller method to make a move in the game.
+     * Takes a 'playerId' as the player that is making the move.
+     * Takes a 'move' where move is a JSON object containing the move data.
+     *
+     * URL: /game/move/{game-id}
+     */
+    move: function (req, res) {
+        var gameId = req.params.id;
+        var playerId = req.body.playerId;
+
+        Game.findOne({id: gameId}, function (err, game) {
+            if (err) {
+                res.status(404);
+                return res.json({status: 'err', message: 'failed to find game with id "' + gameId + '"'});
+            }
+
+            var states = game.playerStates;
+            var playerState = states[playerId];
+
+            var move = req.body.move;
+
+            if (move.action == 'move') {
+                switch (move.direction.toLowerCase()) {
+                    case 'north':
+                        playerState.location.y--;
+                        break;
+                    case 'south':
+                        playerState.location.y++;
+                        break;
+                    case 'east':
+                        playerState.location.x++;
+                        break;
+                    case 'west':
+                        playerState.location.x--;
+                        break;
+                }
+            }
+
+            game.save(function (err) {
+                if (err) {
+                    res.status(500);
+                    return res.json({status: 'err', message: 'failed to save updated game state'});
+                }
+
+                return res.json(game);
             });
         });
     }
