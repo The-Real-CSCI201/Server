@@ -87,8 +87,13 @@ module.exports = {
 
                 game.save(function (err) {
                     if (err) {
+                        console.log(err);
+                        if (err[0].err.message.indexOf('already exists')) {
+                            res.status(200);
+                            return res.json(game);
+                        }
                         res.status(500);
-                        return res.json({status: 'err', message: 'failed to add player to game'});
+                        return res.json({status: 'err', message: 'failed to add player to game', err: err});
                     }
 
                     return res.json(game);
