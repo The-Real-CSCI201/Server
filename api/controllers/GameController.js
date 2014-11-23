@@ -85,6 +85,12 @@ module.exports = {
             }
 
             var playerState = game.playerStates[playerId];
+
+            if (!playerState) {
+                res.status(401);
+                return res.json({status: 'err', message: 'player hasn\'t joined this game'});
+            }
+
             if (playerState.moved) {
                 res.status(403);
                 return res.json({status: 'err', message: 'already moved this round'});
