@@ -9,6 +9,8 @@ module.exports = {
 
     attributes: {
 
+        'name': 'string',
+
         'players': {
             collection: 'player'
         },
