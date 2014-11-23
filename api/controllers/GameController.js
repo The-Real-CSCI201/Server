@@ -86,14 +86,17 @@ module.exports = {
 
             var playerState = game.playerStates[playerId];
 
-            if (!playerState) {
-                res.status(401);
-                return res.json({status: 'err', message: 'player hasn\'t joined this game'});
-            }
+            //allow setting 'override' header to skip some sanity checks
+            if (!req.get('override')) {
+                if (!playerState) {
+                    res.status(401);
+                    return res.json({status: 'err', message: 'player hasn\'t joined this game'});
+                }
 
-            if (playerState.moved) {
-                res.status(403);
-                return res.json({status: 'err', message: 'already moved this round'});
+                if (playerState.moved) {
+                    res.status(403);
+                    return res.json({status: 'err', message: 'already moved this round'});
+                }
             }
 
             var move = req.body.move;
@@ -115,7 +118,11 @@ module.exports = {
                 }
             }
             if (move.action == 'shoot') {
-                game.bullets.push({playerId: playerId, direction: move.direction.toLowerCase()});
+                game.bullets.push({
+                    playerId: playerId,
+                    direction: move.direction.toLowerCase(),
+                    start: playerState.location
+                });
             }
 
             playerState.moved = true;
