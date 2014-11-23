@@ -13,7 +13,8 @@ module.exports = {
     create: function (req, res) {
         var gameData = {
             players: [],
-            playerStates: {}
+            playerStates: {},
+            bullets: []
         };
         Game.create(gameData, function (err, game) {
             return res.json(game);
@@ -83,8 +84,11 @@ module.exports = {
                 return res.json({status: 'err', message: 'failed to find game with id "' + gameId + '"'});
             }
 
-            var states = game.playerStates;
-            var playerState = states[playerId];
+            var playerState = game.playerStates[playerId];
+            if (playerState.moved) {
+                res.status(403);
+                return res.json({status: 'err', message: 'already moved this round'});
+            }
 
             var move = req.body.move;
 
@@ -102,6 +106,20 @@ module.exports = {
                     case 'west':
                         playerState.location.x--;
                         break;
+                }
+            }
+            if (move.action == 'shoot') {
+                game.bullets.push({playerId: playerId, direction: move.direction.toLowerCase()});
+            }
+
+            playerState.moved = true;
+
+            var allPlayersMoved = true;
+            for (var player in game.playerStates) {
+                if (game.playerStates.hasOwnProperty(player)) {
+                    if (!player.moved) {
+                        allPlayersMoved = false;
+                    }
                 }
             }
 

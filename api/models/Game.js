@@ -17,7 +17,9 @@ module.exports = {
             model: 'map'
         },
 
-        'playerStates': 'json'
+        'playerStates': 'json',
+
+        'bullets': 'json'
 
     }
 };
