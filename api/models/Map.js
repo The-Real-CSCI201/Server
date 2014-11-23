@@ -9,9 +9,7 @@ module.exports = {
 
     attributes: {
         name: 'string',
-        tiles: {
-            collection: 'tile'
-        }
+        tiles: 'json'
     }
 };
 
