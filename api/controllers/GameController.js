@@ -5,6 +5,8 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
+var gcm = require('node-gcm');
+
 module.exports = {
 
     /**
@@ -79,7 +81,7 @@ module.exports = {
         var gameId = req.params.id;
         var playerId = req.body.playerId;
 
-        Game.findOne({id: gameId}, function (err, game) {
+        Game.findOne(gameId).populate('players').exec(function (err, game) {
             if (err) {
                 res.status(404);
                 return res.json({status: 'err', message: 'failed to find game with id "' + gameId + '"'});
@@ -150,9 +152,20 @@ module.exports = {
                     }
                 }
 
-                //TODO: update player health here if a player was hit
+                var message = new gcm.Message();
+                message.addDataWithKeyValue('action', 'turn-ended');
+                var registrationIds = []; //the gcm receiver ids
                 //TODO: push to all clients that everyone has moved
-                console.log('this turn is over');
+                for (var i = 0; i < game.players.length; i++) {
+                    var player = game.players[i];
+                    console.log('notifying ' + player.gcmId);
+                    registrationIds.push(player.gcmId);
+                }
+
+                var sender = new gcm.Sender('AIzaSyDYUkfCI2wpxU4cAkT7vtt2oHR8I9Kqg2E');
+                sender.send(message, registrationIds, 4, function (err, result) {
+                    console.log('notified for end of turn');
+                });
             }
 
             game.save(function (err) {
@@ -161,7 +174,7 @@ module.exports = {
                     return res.json({status: 'err', message: 'failed to save updated game state'});
                 }
 
-                return res.json(game);
+                return res.json({status: 'success'});
             });
         });
     }
