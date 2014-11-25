@@ -186,8 +186,8 @@ module.exports = {
 
                 var message = new gcm.Message();
                 message.addDataWithKeyValue('action', 'turn-ended');
+                message.addDataWithKeyValue('game', game.id);
                 var registrationIds = []; //the gcm receiver ids
-                //TODO: push to all clients that everyone has moved
                 for (var i = 0; i < game.players.length; i++) {
                     var player = game.players[i];
                     console.log('notifying ' + player.gcmId);
