@@ -70,8 +70,9 @@ module.exports = {
             }
 
             Player.findOne({id: playerId}, function (err, player) {
-                if (err) {
+                if (err || !player) {
                     res.status(404);
+                    console.log('couldn\'t find player ' + playerId);
                     return res.json({status: 'err', message: 'failed to find player with id "' + playerId + '"'});
                 }
 
@@ -87,7 +88,6 @@ module.exports = {
 
                 game.save(function (err) {
                     if (err) {
-                        console.log(err);
                         if (err[0].err.message.indexOf('already exists')) {
                             res.status(200);
                             return res.json(game);

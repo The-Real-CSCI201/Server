@@ -10,6 +10,8 @@ module.exports = {
     attributes: {
 
         gcmId: 'string',
+        googleId: 'string',
+        photo: 'string',
         name: 'string'
 
     }
